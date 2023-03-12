@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/braintrain/assets/images/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/braintrain/assets/images/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/braintrain/assets/images/favicon-16x16.png" />
+    <link rel="manifest" href="/braintrain/assets/images/site.webmanifest" />
+    <link rel="mask-icon" href="/braintrain/assets/images/safari-pinned-tab.svg" color="#5bbad5" />
+    <link rel="shortcut icon" href="/braintrain/assets/images/favicon.ico" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Braintrain</title>
+    <script type="module" crossorigin src="/braintrain/assets/index-373aa777.js"></script>
+    <link rel="stylesheet" href="/braintrain/assets/index-a4d70016.css">
+  </head>
+  <body class="bg-slate-900 text-white font-mono antialiased">
+    <div
+      x-data="braintrain"
+      class="max-w-sm h-screen mx-auto flex flex-col"
+    >
+      <div
+        class="fixed grid place-items-center inset-0"
+        x-show="showMenu"
+      >
+        <div class="bg-slate-900/90 border-2 border-white text-center p-10">
+          <h1 class="text-xl tracking-widest uppercase">Braintrain</h1>
+          <div class="mt-3 mb-6">
+            <p>Brain Checks: <span x-text="brainChecks"></span></p>
+            <p>Functional Brain: <span x-text="solved"></span></p>
+          </div>
+          <button
+            class="w-full py-4 font-semibold text-sm uppercase bg-teal-500 text-white"
+            @click.prevent="startBrainChecks()"
+          >
+            Start
+          </button>
+        </div>
+      </div>
+      <div class="text-lg py-1 px-1 flex">
+        <div class="flex-1 text-left">
+          <span x-text="solved"></span> / <span x-text="brainChecks"></span>
+        </div>
+        <div class="flex-1 text-center">
+          <span
+            class="tracking-widest uppercase cursor-pointer"
+            @click.prevent="showMenu = true"
+          >
+            Braintrain
+          </span>
+        </div>
+        <div class="flex-1 text-right">
+          <span x-text="tilesToSelect"></span>
+        </div>
+      </div>
+      <div
+        class="flex-1"
+        x-ref="gridWrap"
+      >
+        <div
+          class="grid gap-0.5 h-full"
+          :style="{
+            '--columns': cols,
+            '--rows': rows,
+            'grid-template-columns': 'repeat(var(--columns), minmax(0, 1fr))',
+            'grid-template-rows': 'repeat(var(--rows), minmax(0, 1fr))'
+          }"
+        >
+          <template x-for="(tile, index) in tiles" :key="index">
+            <div
+              class="border-2 border-slate-700"
+              :class="{
+                'bg-teal-500': (hint && tile.isTarget) || tile.isSelected,
+                'bg-red-500': unsolvedHint && tile.isTarget,
+              }"
+              @click.prevent="selectTile(tile)"
+            ></div>
+          </template>
+        </div>
+      </div>
+      <audio x-ref="audioClick">
+        <source src="/braintrain/assets/audio/click.mp3" type="audio/mpeg" />
+      </audio>
+      <audio x-ref="audioSolved">
+        <source src="/braintrain/assets/audio/solved.mp3" type="audio/mpeg" />
+      </audio>
+    </div>
+    
+  </body>
+</html>
