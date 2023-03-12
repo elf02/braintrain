@@ -14,18 +14,27 @@ Alpine.data('braintrain', () => ({
   solved: 0,
   brainChecks: 0,
   showMenu: true,
+  lastVisibilityHidden: false,
 
-  init() {
-    const tileWidth =  Math.floor(this.$refs.gridWrap.clientWidth / 4);
-    this.cols = Math.floor(this.$refs.gridWrap.clientWidth / tileWidth);
-    this.rows = Math.floor(this.$refs.gridWrap.clientHeight / tileWidth);
+  visibilityEvent() {
+    if (this.lastVisibilityHidden && !document.hidden) {
+      this.showMenu = true;
+    }
+
+    this.lastVisibilityHidden = document.hidden;
   },
 
   startBrainChecks() {
     this.$refs.audioClick.play();
+
+    const tileWidth =  Math.floor(this.$refs.gridWrap.clientWidth / 4);
+    this.cols = Math.floor(this.$refs.gridWrap.clientWidth / tileWidth);
+    this.rows = Math.floor(this.$refs.gridWrap.clientHeight / tileWidth);
+
     this.showMenu = false;
     this.solved = 0;
     this.brainChecks = 0;
+    this.selectionLocked = true;
     setTimeout(() => this.initTiles(), 500);
   },
 
