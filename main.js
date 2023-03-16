@@ -15,6 +15,8 @@ Alpine.data('braintrain', () => ({
   brainChecks: 0,
   showMenu: true,
   lastVisibilityHidden: false,
+  audioClick: new Audio(import.meta.env.BASE_URL + 'assets/audio/click.mp3'),
+  audioSolve: new Audio(import.meta.env.BASE_URL + 'assets/audio/solved.mp3'),
 
   visibilityEvent() {
     if (this.lastVisibilityHidden && !document.hidden) {
@@ -24,8 +26,14 @@ Alpine.data('braintrain', () => ({
     this.lastVisibilityHidden = document.hidden;
   },
 
+  playAudio(audio) {
+    audio.volume = 1;
+    audio.currentTime = 0;
+    audio.play();
+  },
+
   startBrainChecks() {
-    this.$refs.audioClick.play();
+    this.playAudio(this.audioClick);
 
     const tileWidth =  Math.floor(this.$refs.gridWrap.clientWidth / 4);
     this.cols = Math.floor(this.$refs.gridWrap.clientWidth / tileWidth);
@@ -65,7 +73,7 @@ Alpine.data('braintrain', () => ({
       this.brainChecks++;
 
       if (this.targetTiles.length === this.targetTilesCount) {
-        this.$refs.audioSolved.play();
+        this.playAudio(this.audioSolve);
         this.solved++;
         this.selectionLocked = true;
         setTimeout(() => this.initTiles(), 1000);
@@ -81,7 +89,7 @@ Alpine.data('braintrain', () => ({
   selectTile(tile) {
     if (this.selectionLocked) return;
 
-    this.$refs.audioClick.play();
+    this.playAudio(this.audioClick);
     tile.isSelected = true;
     this.checkTiles();
   },
