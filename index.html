@@ -18,10 +18,10 @@
     <div
       x-data="braintrain"
       x-on:visibilitychange.document="visibilityEvent"
-      class="max-w-sm h-screen mx-auto flex flex-col"
+      class="relative max-w-sm h-screen mx-auto flex flex-col"
     >
       <div
-        class="fixed grid place-items-center inset-0"
+        class="absolute z-10 grid place-items-center inset-0"
         x-show="showMenu"
       >
         <div class="bg-slate-900/90 border-2 border-white text-center p-10">
@@ -32,7 +32,7 @@
           </div>
           <button
             class="w-full py-4 font-semibold text-sm uppercase bg-teal-500 text-white"
-            @click.prevent="startBrainChecks()"
+            @click="startBrainChecks()"
           >
             Start
           </button>
@@ -43,12 +43,12 @@
           <span x-text="solved"></span> / <span x-text="brainChecks"></span>
         </div>
         <div class="flex-1 text-center">
-          <span
+          <button
             class="tracking-widest uppercase cursor-pointer"
-            @click.prevent="showMenu = true"
+            @click="showMenu = true"
           >
             Braintrain
-          </span>
+          </button>
         </div>
         <div class="flex-1 text-right">
           <span x-text="tilesToSelect"></span>
@@ -69,16 +69,23 @@
         >
           <template x-for="(tile, index) in tiles" :key="index">
             <div
-              class="border-2 border-slate-700"
+              class="relative border-2 border-slate-700"
               :class="{
                 'bg-teal-500': (hint && tile.isTarget) || tile.isSelected,
                 'bg-red-500': unsolvedHint && tile.isTarget,
               }"
-              @click.prevent="selectTile(tile)"
-            ></div>
+            >
+              <button class="absolute inset-0" @click="selectTile(tile)"></button>
+            </div>
           </template>
         </div>
       </div>
+      <audio x-ref="audioClick">
+        <source src="/assets/audio/click.mp3" type="audio/mpeg" />
+      </audio>
+      <audio x-ref="audioSolved">
+        <source src="/assets/audio/solved.mp3" type="audio/mpeg" />
+      </audio>
     </div>
     <script type="module" src="/main.js"></script>
   </body>

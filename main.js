@@ -15,8 +15,6 @@ Alpine.data('braintrain', () => ({
   brainChecks: 0,
   showMenu: true,
   lastVisibilityHidden: false,
-  audioClick: new Audio(import.meta.env.BASE_URL + 'assets/audio/click.mp3'),
-  audioSolve: new Audio(import.meta.env.BASE_URL + 'assets/audio/solved.mp3'),
 
   visibilityEvent() {
     if (this.lastVisibilityHidden && !document.hidden) {
@@ -26,14 +24,15 @@ Alpine.data('braintrain', () => ({
     this.lastVisibilityHidden = document.hidden;
   },
 
-  playAudio(audio) {
-    audio.volume = 1;
+  playAudio(audio, volume = 1) {
+    audio.volume = volume;
     audio.currentTime = 0;
     audio.play();
   },
 
   startBrainChecks() {
-    this.playAudio(this.audioClick);
+    this.playAudio(this.$refs.audioSolved, 0); // iOS Safari Hack
+    this.playAudio(this.$refs.audioClick);
 
     const tileWidth =  Math.floor(this.$refs.gridWrap.clientWidth / 4);
     this.cols = Math.floor(this.$refs.gridWrap.clientWidth / tileWidth);
@@ -73,7 +72,7 @@ Alpine.data('braintrain', () => ({
       this.brainChecks++;
 
       if (this.targetTiles.length === this.targetTilesCount) {
-        this.playAudio(this.audioSolve);
+        this.playAudio(this.$refs.audioSolved);
         this.solved++;
         this.selectionLocked = true;
         setTimeout(() => this.initTiles(), 1000);
@@ -89,7 +88,7 @@ Alpine.data('braintrain', () => ({
   selectTile(tile) {
     if (this.selectionLocked) return;
 
-    this.playAudio(this.audioClick);
+    this.playAudio(this.$refs.audioClick);
     tile.isSelected = true;
     this.checkTiles();
   },
