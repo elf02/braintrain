@@ -24,13 +24,15 @@ Alpine.data('braintrain', () => ({
     this.lastVisibilityHidden = document.hidden;
   },
 
-  playAudio(audio, volume = 1) {
-    audio.volume = volume;
+  playAudio(audio, muted = false) {
+    audio.pause();
+    audio.currentTime = 0;
+    audio.muted = muted;
     audio.play();
   },
 
   startBrainChecks() {
-    this.playAudio(this.$refs.audioSolved, 0); // iOS Safari Hack
+    this.playAudio(this.$refs.audioSolved, true); // iOS Safari Hack
     this.playAudio(this.$refs.audioClick);
 
     const tileWidth =  Math.floor(this.$refs.gridWrap.clientWidth / 4);
