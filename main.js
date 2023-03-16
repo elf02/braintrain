@@ -26,7 +26,6 @@ Alpine.data('braintrain', () => ({
 
   playAudio(audio, volume = 1) {
     audio.volume = volume;
-    audio.currentTime = 0;
     audio.play();
   },
 
