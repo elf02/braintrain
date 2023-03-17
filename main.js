@@ -15,39 +15,56 @@ Alpine.data('braintrain', () => ({
   brainChecks: 0,
   showMenu: true,
   lastVisibilityHidden: false,
+  audioContext: null,
+  audioUnmuted: false,
   audioClick: null,
   audioSolved: null,
 
-  visibilityEvent() {
-    if (this.lastVisibilityHidden && !document.hidden) {
-      this.showMenu = true;
-    }
+  init() {
+    const context = new AudioContext();
+    const gainNode = context.createGain();
+    gainNode.gain.value = 1;
+    this.audioContext = context;
 
-    this.lastVisibilityHidden = document.hidden;
+    window.fetch(import.meta.env.BASE_URL + 'assets/audio/click.mp3')
+      .then(response => response.arrayBuffer())
+      .then(arrayBuffer => this.audioContext.decodeAudioData(arrayBuffer, audioBuffer => {
+        this.audioClick = audioBuffer;
+      }));
+
+    window.fetch(import.meta.env.BASE_URL + 'assets/audio/solved.mp3')
+      .then(response => response.arrayBuffer())
+      .then(arrayBuffer => this.audioContext.decodeAudioData(arrayBuffer, audioBuffer => {
+        this.audioSolved = audioBuffer;
+      }));
+
+    this.unmuteAudio();
   },
 
-  initAudio() {
-    if (this.audioClick === null && this.audioSolved === null) {
-      this.audioClick = new Audio(import.meta.env.BASE_URL + 'assets/audio/click.mp3');
-      this.audioSolved = new Audio(import.meta.env.BASE_URL + 'assets/audio/solved.mp3');
+  unmuteAudio() {
+    if (!this.audioUnmuted) {
+      const buffer = this.audioContext.createBuffer(1, 1, 22050);
+      const source = this.audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(this.audioContext.destination);
+      source.start(0);
 
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const audioCtx = new AudioContext();
-
-      const sourceClick = audioCtx.createMediaElementSource(this.audioClick);
-      sourceClick.connect(audioCtx.destination);
-
-      const sourceSolved = audioCtx.createMediaElementSource(this.audioSolved);
-      sourceSolved.connect(audioCtx.destination);
+      setTimeout(() => this.audioUnmuted = (
+        source.playbackState === source.PLAYING_STATE ||
+        source.playbackState === source.FINISHED_STATE
+      ), 100);
     }
   },
 
-  playAudio(audio) {
-    audio.play();
+  playAudio(audioBuffer) {
+    const source = this.audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(this.audioContext.destination);
+    source.start();
   },
 
   startBrainChecks() {
-    this.initAudio();
+    this.unmuteAudio();
     this.playAudio(this.audioClick);
 
     const tileWidth =  Math.floor(this.$refs.gridWrap.clientWidth / 4);
@@ -111,6 +128,14 @@ Alpine.data('braintrain', () => ({
 
   rndMinMax(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
+  },
+
+  visibilityEvent() {
+    if (this.lastVisibilityHidden && !document.hidden) {
+      this.showMenu = true;
+    }
+
+    this.lastVisibilityHidden = document.hidden;
   },
 
   get selectedTiles() {
