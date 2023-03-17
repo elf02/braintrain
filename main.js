@@ -15,6 +15,8 @@ Alpine.data('braintrain', () => ({
   brainChecks: 0,
   showMenu: true,
   lastVisibilityHidden: false,
+  audioClick: null,
+  audioSolved: null,
 
   visibilityEvent() {
     if (this.lastVisibilityHidden && !document.hidden) {
@@ -24,16 +26,29 @@ Alpine.data('braintrain', () => ({
     this.lastVisibilityHidden = document.hidden;
   },
 
-  playAudio(audio, muted = false) {
-    audio.pause();
-    audio.currentTime = 0;
-    audio.muted = muted;
+  initAudio() {
+    if (this.audioClick === null && this.audioSolved === null) {
+      this.audioClick = new Audio(import.meta.env.BASE_URL + 'assets/audio/click.mp3');
+      this.audioSolved = new Audio(import.meta.env.BASE_URL + 'assets/audio/solved.mp3');
+
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext();
+
+      const sourceClick = audioCtx.createMediaElementSource(this.audioClick);
+      sourceClick.connect(audioCtx.destination);
+
+      const sourceSolved = audioCtx.createMediaElementSource(this.audioSolved);
+      sourceSolved.connect(audioCtx.destination);
+    }
+  },
+
+  playAudio(audio) {
     audio.play();
   },
 
   startBrainChecks() {
-    this.playAudio(this.$refs.audioSolved, true); // iOS Safari Hack
-    this.playAudio(this.$refs.audioClick);
+    this.initAudio();
+    this.playAudio(this.audioClick);
 
     const tileWidth =  Math.floor(this.$refs.gridWrap.clientWidth / 4);
     this.cols = Math.floor(this.$refs.gridWrap.clientWidth / tileWidth);
@@ -73,7 +88,7 @@ Alpine.data('braintrain', () => ({
       this.brainChecks++;
 
       if (this.targetTiles.length === this.targetTilesCount) {
-        this.playAudio(this.$refs.audioSolved);
+        this.playAudio(this.audioSolved);
         this.solved++;
         this.selectionLocked = true;
         setTimeout(() => this.initTiles(), 1000);
@@ -89,7 +104,7 @@ Alpine.data('braintrain', () => ({
   selectTile(tile) {
     if (this.selectionLocked) return;
 
-    this.playAudio(this.$refs.audioClick);
+    this.playAudio(this.audioClick);
     tile.isSelected = true;
     this.checkTiles();
   },
