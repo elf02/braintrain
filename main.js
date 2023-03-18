@@ -16,7 +16,6 @@ Alpine.data('braintrain', () => ({
   showMenu: true,
   lastVisibilityHidden: false,
   audioContext: null,
-  audioUnmuted: false,
   audioClick: null,
   audioSolved: null,
 
@@ -42,18 +41,11 @@ Alpine.data('braintrain', () => ({
   },
 
   unmuteAudio() {
-    if (!this.audioUnmuted) {
-      const buffer = this.audioContext.createBuffer(1, 1, 22050);
-      const source = this.audioContext.createBufferSource();
-      source.buffer = buffer;
-      source.connect(this.audioContext.destination);
-      source.start(0);
-
-      setTimeout(() => this.audioUnmuted = (
-        source.playbackState === source.PLAYING_STATE ||
-        source.playbackState === source.FINISHED_STATE
-      ), 100);
-    }
+    const buffer = this.audioContext.createBuffer(1, 1, 22050);
+    const source = this.audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(this.audioContext.destination);
+    source.start(0);
   },
 
   playAudio(audioBuffer) {
